@@ -45,11 +45,11 @@ public class CreditCard extends Loan {
         return balance.multipliedBy(interestRate, RoundingMode.FLOOR);
     }
 
-    public CreditCard(Long loanId, Long clientId, float interestRate) {
+    public CreditCard(Long loanId, Long clientId, float interestRate, Money openingBalance) {
         super(loanId, clientId);
         this.clientId = clientId;
         this.loanId = loanId;
         this.interestRate = interestRate;
-        balance = Money.zero(CurrencyUnit.CAD);
+        balance = openingBalance;
     }
 }

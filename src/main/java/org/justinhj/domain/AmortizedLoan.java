@@ -12,16 +12,16 @@ import java.time.LocalDate;
  */
 public class AmortizedLoan extends Loan {
     public float interestRate;
+    public Money principal;
 
     @Override
     public Money getPrincipal() {
-        // TODO
-        return Money.of(CurrencyUnit.CAD, 10f);
+        return principal;
     }
 
     @Override
     public float getInterestRate() {
-        return 0;
+        return interestRate;
     }
 
     @Override
@@ -33,5 +33,6 @@ public class AmortizedLoan extends Loan {
     public AmortizedLoan(Long loanId, Long clientId, float interestRate, Money principal, int months, LocalDate start) {
         super(loanId, clientId);
         this.interestRate = interestRate;
+        this.principal = principal;
     }
 }
