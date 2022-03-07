@@ -11,12 +11,21 @@ import java.time.LocalDate;
  * end of the term the balance is zero.
  */
 public class AmortizedLoan extends Loan {
-    public float interestRate;
-    public Money principal;
+    private float interestRate;
+    private Money principal;
+    private LocalDate start;
 
     @Override
     public Money getPrincipal() {
         return principal;
+    }
+
+    @Override
+    public long getOverduePaymentDays() {
+        // TODO
+        // This would be based on last payment date and current date for example
+        // Let's just say it has never been paid...
+        return LocalDate.now().toEpochDay() - start.toEpochDay();
     }
 
     @Override
@@ -34,5 +43,6 @@ public class AmortizedLoan extends Loan {
         super(loanId, clientId);
         this.interestRate = interestRate;
         this.principal = principal;
+        this.start = start;
     }
 }

@@ -35,6 +35,7 @@ public abstract class Loan extends FinancialInstrument {
     public abstract Money getPrincipal();
     public abstract float getInterestRate();
     public abstract Money getMonthlyPayment();
+    public abstract long getOverduePaymentDays();
 
     public Long loanId;
 
@@ -45,6 +46,7 @@ public abstract class Loan extends FinancialInstrument {
                 ", loanId=" + loanId +
                 ", principal=" + getPrincipal() +
                 ", rate=" + getInterestRate() + "%" +
+                ", days overdue=" + getOverduePaymentDays() +
                 '}';
     }
 

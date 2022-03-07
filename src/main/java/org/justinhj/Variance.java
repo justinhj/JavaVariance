@@ -9,12 +9,12 @@ import org.justinhj.domain.AmortizedLoan;
 import org.justinhj.domain.CreditCard;
 import org.justinhj.domain.FinancialInstrument;
 import org.justinhj.domain.Loan;
+import org.justinhj.util.CreditCardReportPrinter;
+import org.justinhj.util.FinancialInstrumentReportPrinter;
+import org.justinhj.util.ReportPrinter;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Variance {
 
@@ -22,6 +22,13 @@ public class Variance {
         @Override
         public int compare(Loan o1, Loan o2) {
             return o1.getPrincipal().compareTo(o2.getPrincipal());
+        }
+    }
+
+    public static class CompareLoanOverdueDays implements Comparator<Loan> {
+        @Override
+        public int compare(Loan o1, Loan o2) {
+            return Long.compare(o1.getOverduePaymentDays(),o2.getOverduePaymentDays());
         }
     }
 
@@ -42,7 +49,7 @@ public class Variance {
     }
 
     public static void getClientLoans(Long clientId, List<? extends Loan> loans, List<? super Loan> output) {
-        loans.stream().filter(loan -> loan.clientId.equals(clientId)).forEach(
+        loans.stream().filter(loan -> loan.getClientId().equals(clientId)).forEach(
                 loan ->
                         output.add(loan)
         );
@@ -84,6 +91,15 @@ public class Variance {
         Three
     }
 
+    // Function for contravariance example, a print reports for credit cards
+    // But we may not have want a report printer specifically for them so
+    // specify super and that allows contravariance of the report printer
+    public static void creditCardReports(Collection<? extends CreditCard> reports,
+                                         ReportPrinter<? super CreditCard> reportPrinter) {
+        for (CreditCard report : reports) {
+            reportPrinter.report(report);
+        }
+    }
     public static void main(String[] args) {
 
         // Loan amount calculator
@@ -103,10 +119,11 @@ public class Variance {
         CreditCard cc1 = new CreditCard(1234L, 1L, 18.0f, Money.of(CurrencyUnit.CAD, 500));
         CreditCard cc2 = new CreditCard(1235L, 2L, 21.0f, Money.of(CurrencyUnit.CAD, 200));
         AmortizedLoan al1 = new AmortizedLoan(1235L, 1L, 6.0f,
-                Money.of(CurrencyUnit.CAD, 10000), 24, LocalDate.now());
+                Money.of(CurrencyUnit.CAD, 10000), 24, LocalDate.now().minusDays(10));
         AmortizedLoan al2 = new AmortizedLoan(1235L, 1L, 9.0f,
                 Money.of(CurrencyUnit.CAD, 25000), 60, LocalDate.now());
-
+        AmortizedLoan al3 = new AmortizedLoan(1235L, 1L, 9.0f,
+                Money.of(CurrencyUnit.CAD, 12000), 60, LocalDate.now().minusDays(20));
         Loan[] loans = {cc1,cc2,al1,al2};
         System.out.println("largest loan " + findLargest(loans));
 
@@ -149,7 +166,6 @@ public class Variance {
 
         // look into filtering by client id into a list of loan from a sub type list of credit cards
 
-
         // Works nicely with loans input and loans output...
         List<Loan> clientLoans = new ArrayList<>();
         getClientLoans(1L, loansList, clientLoans);
@@ -170,6 +186,13 @@ public class Variance {
         List<FinancialInstrument> fis = new ArrayList<>();
         getClientLoans(1L, loansList, fis);
         System.out.println("financial instruments " + fis);
+
+        // Copy all credit cards to a list of loans
+        List<Loan> loanListCopied = new ArrayList<>();
+        loanListCopied.addAll(creditCardList); // Get
+        // This needs Put for the predicate
+        loanListCopied.removeIf(l -> l.getPrincipal().isLessThan(Money.of(CurrencyUnit.CAD, 300)));
+
 
         List<Number> nums2 = new ArrayList<Number>();
         List<? super Number> sink = nums2;
@@ -231,7 +254,7 @@ public class Variance {
         // in other words to PUT (i.e., modify) you must be able to sub something
 
         // hsLoans.removeIf((CreditCard cc) -> cc.getPrincipal() > Money.zero(CurrencyUnit.CAD)); // Cannot compile
-        hsLoans.removeIf((FinancialInstrument fi) -> fi.clientId == 0L); // OK
+        hsLoans.removeIf((FinancialInstrument fi) -> fi.getClientId() == 0L); // OK
 
         // In short, the removeIf parameter is contravariant in the collection type. What do we know about each
         // element? Only that it is type E or below... that means that we can substitute either an E or anything
@@ -285,6 +308,56 @@ public class Variance {
         Object [] oArray1 = ccArray1; // can keep going up
         Object o1 = ccArray1; // this is ok too
 
+        // Application: A priority queue loans by risk
+
+        PriorityQueue<Loan> priorityLoans = new PriorityQueue<>(new CompareLoanOverdueDays());
+        List<AmortizedLoan> amloans = Arrays.asList(al1,al2,al3);
+        List<CreditCard> ccloans = Arrays.asList(cc1,cc2);
+
+        priorityLoans.addAll(amloans);
+        priorityLoans.addAll(ccloans);
+
+        // Can iterate over it but that doesn't get the sorted elements or change it
+        for(Loan loan: priorityLoans) {
+            System.out.println(loan);
+        }
+
+        // Collect the elements into a List sorted by priority
+        List<FinancialInstrument> fiOut = new ArrayList();
+        while(priorityLoans.size() > 0) {
+            Loan l = priorityLoans.poll();
+            fiOut.add(l);
+        }
+
+        // Now the list is sorted
+        for(FinancialInstrument loan: fiOut) {
+            System.out.println(loan);
+        }
+
+        // Super/Put Contravariance example
+
+        // Print reports for a list of things
+        // Because hsLoans HashSet<Loan> is a collection of a subtype of FinancialInstrument this is fine
+
+        FinancialInstrumentReportPrinter financialInstrumentReportPrinter = new FinancialInstrumentReportPrinter();
+        CreditCardReportPrinter creditCardReportPrinter = new CreditCardReportPrinter();
+
+        FinancialInstrument.printReports(hsLoans, financialInstrumentReportPrinter);
+
+        // We can also pass a credit card list
+        // Why is this ok?
+        // creditCardList has type List<T> and financialInstrumentReportPrinter prints type T
+        FinancialInstrument.printReports(creditCardList, financialInstrumentReportPrinter);
+
+        // This is fine
+        FinancialInstrument.printReports(creditCardList, creditCardReportPrinter);
+
+        // So is this
+        creditCardReports(creditCardList, creditCardReportPrinter);
+
+        // But if we don't have credit reporter?
+        // This works because of the contravariant annotation on the function
+        creditCardReports(creditCardList, financialInstrumentReportPrinter);
 
     }
 
