@@ -102,11 +102,20 @@ public class Variance {
     }
     public static void main(String[] args) {
 
+        // Alex nedclu thing can be deleted
+        StringBuilder sb;
+        sb = new StringBuilder();
+
+        sb.append("hello");
+
+        System.out.println(sb);
+
         // Loan amount calculator
         Money principal = Money.of(CurrencyUnit.CAD, 500000);
 
         MoneyFormatterBuilder mf = new MoneyFormatterBuilder();
         mf.appendCurrencySymbolLocalized();
+
         mf.appendAmount(MoneyAmountStyle.ASCII_DECIMAL_POINT_GROUP3_COMMA);
         MoneyFormatter mff = mf.toFormatter();
 
