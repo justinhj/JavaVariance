@@ -12,25 +12,14 @@ import org.justinhj.domain.Loan;
 import org.justinhj.util.LoanReportPrinter;
 import org.justinhj.util.FinancialInstrumentReportPrinter;
 import org.justinhj.util.ReportPrinter;
+import org.justinhj.util.LoanComparators.CompareLoanOverdueDays;
+import org.justinhj.util.LoanComparators.CompareLoanPrincipal;
 
 import java.time.LocalDate;
 import java.util.*;
 
+// Variance examples using a pretend financial institution model
 public class Variance {
-
-    public static class CompareLoanPrincipal implements Comparator<Loan> {
-        @Override
-        public int compare(Loan o1, Loan o2) {
-            return o1.getPrincipal().compareTo(o2.getPrincipal());
-        }
-    }
-
-    public static class CompareLoanOverdueDays implements Comparator<Loan> {
-        @Override
-        public int compare(Loan o1, Loan o2) {
-            return Long.compare(o1.getOverduePaymentDays(),o2.getOverduePaymentDays());
-        }
-    }
 
     // Find the largest loan in an array of loans
     public static Loan findLargest(Loan [] loans) {
@@ -50,25 +39,23 @@ public class Variance {
 
     public static void getClientLoans(Long clientId, List<? extends Loan> loans, List<? super Loan> output) {
         loans.stream().filter(loan -> loan.getClientId().equals(clientId)).forEach(
-                loan ->
-                        output.add(loan)
+                loan -> output.add(loan)
         );
 
     }
-
 
     // Wilcard capture (§2.7 Java Generics and Collections)
 
     // With this type signature which is simpler than the next one we are saying
     // reverse a list with unknown type (?). The implementation in reverse2 below
     // does not allow us to
-//    public static void reverseBroken(List<?> list) {
-//        for(int i=0, j=list.size() - 1;i<j;i++,j--) {
-//            Object ej = list.get(j);
-//            list.set(j,list.get(i)); // "required capture of ?" or similar error, the compiler doesn't know the type
-//            list.set(i,ej); // same error
-//        }
-//    }
+    //    public static void reverseBroken(List<?> list) {
+    //        for(int i=0, j=list.size() - 1;i<j;i++,j--) {
+    //            Object ej = list.get(j);
+    //            list.set(j,list.get(i)); // "required capture of ?" or similar error, the compiler doesn't know the type
+    //            list.set(i,ej); // same error
+    //        }
+    //    }
 
     public static void reverse1(List<?> list) {
         reverse2(list); // instead call the other function (Which would be private) and type inference "captures"
@@ -100,6 +87,7 @@ public class Variance {
             reportPrinter.report(report);
         }
     }
+    @SuppressWarnings("unused")
     public static void main(String[] args) {
 
         // Loan amount calculator
@@ -130,6 +118,7 @@ public class Variance {
 
         // Array variance
         CreditCard[] creditCards = {cc1,cc2};
+
         Loan[] creditCardLoans = creditCards;
 
         // BOOM ArrayStoreException a runtime error because arrays are covariant
@@ -194,7 +183,6 @@ public class Variance {
         // This needs Put for the predicate
         loanListCopied.removeIf(l -> l.getPrincipal().isLessThan(Money.of(CurrencyUnit.CAD, 300)));
 
-
         List<Number> nums2 = new ArrayList<Number>();
         List<? super Number> sink = nums2;
         List<? extends Number> source = nums2;
@@ -203,9 +191,7 @@ public class Variance {
             sink.add(i);
 
         double sum=0; for (Number num : source)
-            sum+=num.doubleValue();
-
-
+        sum += num.doubleValue();
 
         // Wildcard capture
 
@@ -232,7 +218,6 @@ public class Variance {
 
         //  boolean removeIf(Predicate<? super E> filter)
         assert es.removeIf(((DieRolls d) -> d == dr1));
-
 
         // Temp hashset API for loans
 
@@ -359,9 +344,5 @@ public class Variance {
         // But if we don't have credit reporter?
         // This works because of the contravariant annotation on the function
         creditCardReports(creditCardList, financialInstrumentReportPrinter);
-
     }
-
-
-
 }

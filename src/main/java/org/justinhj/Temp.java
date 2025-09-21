@@ -36,7 +36,6 @@ public class Temp {
         System.out.println("s1 " + s1);
         System.out.println("s2 " + s2);
 
-
         // Boxing - Integers are compared by reference
         // ints are compared by value
         int a = 200;
@@ -103,9 +102,6 @@ public class Temp {
 //        nums101.add(3.14); // compile-time error
 //        assert ints98.toString().equals("[1, 2, 3.14]"); // uh oh!
 
-
-
-
         // COVARIANCE
         // Can read from the list (producer)
         List<Integer> myInts = List.of(1,2,3);
@@ -117,7 +113,5 @@ public class Temp {
 
         // writing is not - type error
         //myNums.add(10L);
-
-
     }
 }

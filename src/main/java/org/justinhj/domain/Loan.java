@@ -55,4 +55,3 @@ public abstract class Loan extends FinancialInstrument {
         this.loanId = loanId;
     }
 }
-
