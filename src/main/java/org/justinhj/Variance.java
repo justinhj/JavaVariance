@@ -9,7 +9,7 @@ import org.justinhj.domain.AmortizedLoan;
 import org.justinhj.domain.CreditCard;
 import org.justinhj.domain.FinancialInstrument;
 import org.justinhj.domain.Loan;
-import org.justinhj.util.CreditCardReportPrinter;
+import org.justinhj.util.LoanReportPrinter;
 import org.justinhj.util.FinancialInstrumentReportPrinter;
 import org.justinhj.util.ReportPrinter;
 
@@ -101,14 +101,6 @@ public class Variance {
         }
     }
     public static void main(String[] args) {
-
-        // Alex nedclu thing can be deleted
-        StringBuilder sb;
-        sb = new StringBuilder();
-
-        sb.append("hello");
-
-        System.out.println(sb);
 
         // Loan amount calculator
         Money principal = Money.of(CurrencyUnit.CAD, 500000);
@@ -349,7 +341,7 @@ public class Variance {
         // Because hsLoans HashSet<Loan> is a collection of a subtype of FinancialInstrument this is fine
 
         FinancialInstrumentReportPrinter financialInstrumentReportPrinter = new FinancialInstrumentReportPrinter();
-        CreditCardReportPrinter creditCardReportPrinter = new CreditCardReportPrinter();
+        LoanReportPrinter creditCardReportPrinter = new LoanReportPrinter();
 
         FinancialInstrument.printReports(hsLoans, financialInstrumentReportPrinter);
 
